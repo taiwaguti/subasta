@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subasta Futbolera 412</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 255, 0, 0.2);
+        }
+        h1 { color: #00ff66; margin-bottom: 5px; }
+        .budget-box {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin: 15px 0;
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .card {
+            background: #2a2a2a;
+            border: 2px dashed #555;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            min-height: 150px;
+        }
+        .silueta {
+            font-size: 60px;
+            filter: brightness(0);
+            margin-bottom: 10px;
+        }
+        .btn {
+            background: #00ff66;
+            color: black;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.2s;
+        }
+        .btn:hover { background: #00cc52; }
+        .btn-pass { background: #ff3333; color: white; }
+        .btn-pass:hover { background: #cc0000; }
+        .btn-pass:disabled { background: #555; cursor: not-allowed; }
+        .team-list {
+            text-align: left;
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SUBASTA 412</h1>
+    <p>Edición Delanteros Prime</p>
+    
+    <div class="budget-box">Presupuesto: €<span id="budget">300</span>M</div>
+    
+    <div class="card" id="player-card">
+        <div class="silueta" id="player-icon">👤</div>
+        <h3 id="player-title">Opción 1 de 4</h3>
+        <p id="player-stats">Cargando pistas...</p>
+        <p><strong>Precio Base: </strong>€<span id="player-price">0</span>M</p>
+    </div>
+
+    <button class="btn" onclick="buyPlayer()">🛒 COMPRAR</button>
+    <button class="btn btn-pass" id="pass-btn" onclick="passPlayer()">⏭️ PASAR</button>
+    
+    <div class="team-list">
+        <h4>Tu Once Titular:</h4>
+        <ul id="my-team"></ul>
+    </div>
+</div>
+
+<script>
+    let budget = 300;
+    let currentTurn = 0;
+    let passUsed = false;
+
+    const players = [
+        { name: "Robert Lewandowski", stats: "Delantero Centro. Marcó 41 goles en 29 partidos de Bundesliga rompiendo el récord de Gerd Müller.", price: 65, icon: "🇵🇱" },
+        { name: "Erling Haaland", stats: "El androide. Registró 36 goles en su primera temporada de Premier League con el Manchester City.", price: 90, icon: "🇳🇴" },
+        { name: "Karim Benzema", stats: "Ganador del Balón de Oro 2022. Anotó 15 goles en una sola edición de Champions League.", price: 75, icon: "🇫🇷" },
+        { name: "Kylian Mbappé", stats: "Campeón del Mundo. Hizo un Hat-Trick en una final de Copa del Mundo.", price: 110, icon: "🇫🇷" }
+    ];
+
+    function updateUI() {
+        if (currentTurn < players.length) {
+            document.getElementById("budget").innerText = budget;
+            document.getElementById("player-title").innerText = `Opción ${currentTurn + 1} de ${players.length}`;
+            document.getElementById("player-stats").innerText = players[currentTurn].stats;
+            document.getElementById("player-price").innerText = players[currentTurn].price;
+            document.getElementById("player-icon").innerText = "👤";
+            document.getElementById("player-icon").style.filter = "brightness(0)";
+        } else {
+            endGame();
+        }
+    }
+
+    function buyPlayer() {
+        let p = players[currentTurn];
+        if (budget >= p.price) {
+            budget -= p.price;
+            revealPlayer(p.name, p.icon);
+            setTimeout(() => {
+                let li = document.createElement("li");
+                li.innerText = `${p.icon} ${p.name} (-€${p.price}M)`;
+                document.getElementById("my-team").appendChild(li);
+                currentTurn++;
+                updateUI();
+            }, 1500);
+        } else {
+            alert("¡No tienes suficiente presupuesto para este jugador!");
+        }
+    }
+
+    function passPlayer() {
+        if (!passUsed) {
+            passUsed = true;
+            document.getElementById("pass-btn").disabled = true;
+            alert("Has usado tu comodín. Te saltas este jugador.");
+            currentTurn++;
+            updateUI();
+        }
+    }
+
+    function revealPlayer(name, icon) {
+        document.getElementById("player-icon").innerText = icon;
+        document.getElementById("player-icon").style.filter = "none";
+        document.getElementById("player-stats").innerText = `¡FICHADO! Es ${name}`;
+    }
+
+    function endGame() {
+        document.getElementById("player-card").innerHTML = `
+            <h2>¡Subasta Finalizada!</h2>
+            <p>Te quedaron €${budget}M de presupuesto.</p>
+            <p>¡Buen equipo! Captura la pantalla y compártela.</p>
+            <button class="btn" onclick="location.reload()">Jugar de Nuevo</button>
+        `;
+    }
+
+    updateUI();
+</script>
+</body>
+</html>
