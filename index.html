@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -66,11 +66,9 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>La Subasta 412</h1>
     <p style="color: #94a3b8; margin: 0 0 15px 0; font-size: 14px;">Edición Crack Mundial Histórico</p>
-
     <div class="setup-screen" id="setup-screen">
         <p style="font-size: 18px; margin-bottom: 15px;">¿Cuántos van a jugar en la mesa?</p>
         <select id="player-count">
@@ -82,36 +80,28 @@
         <br><br>
         <button class="btn" onclick="startGame()">Iniciar Subasta</button>
     </div>
-
     <div class="game-layout" id="game-layout">
         <div class="players-sidebar" id="players-sidebar"></div>
-
         <div class="auction-panel">
             <h3 id="round-title" style="margin: 0 0 10px 0; color: #38bdf8;">Jugador Oculto 1 de 6</h3>
-            
             <div class="card-display">
                 <div class="silueta hidden" id="player-icon">👤</div>
                 <div class="stats-text" id="player-stats">Cargando pistas...</div>
             </div>
-
             <div class="price-row">
                 <div class="price-box base-val">Precio Base<span id="base-price">€0M</span></div>
                 <div class="price-box curr-val">Oferta Actual<span id="current-bid">€0M</span></div>
             </div>
-
             <p style="font-size: 12px; color: #a1a1aa; margin: 0 0 8px 0;">Pujar por Jugador (+€5M):</p>
             <div class="bid-grid" id="bid-buttons-container"></div>
-
             <div class="control-btns">
                 <button class="btn btn-action" id="reveal-btn" onclick="revealPlayer()" disabled>👁️ Revelar Jugador</button>
                 <button class="btn" id="next-btn" onclick="nextRound()" disabled>Siguiente Opción ➡️</button>
             </div>
         </div>
     </div>
-
     <div class="teams-grid" id="teams-grid" style="display: none;"></div>
 </div>
-
 <script>
     var playersData = [];
     var currentRound = 0;
@@ -134,17 +124,10 @@
         document.getElementById("setup-screen").style.display = "none";
         document.getElementById("game-layout").style.display = "grid";
         document.getElementById("teams-grid").style.display = "grid";
-
         playersData = [];
         for (var i = 1; i <= count; i++) {
-            playersData.push({
-                id: i,
-                name: "Jugador " + i,
-                budget: 1000,
-                team: []
-            });
+            playersData.push({ id: i, name: "Jugador " + i, budget: 1000, team: [] });
         }
-
         buildSidebarAndTeams();
         setupRound();
     }
@@ -154,14 +137,12 @@
         var teamsGrid = document.getElementById("teams-grid");
         sidebar.innerHTML = "";
         teamsGrid.innerHTML = "";
-
         playersData.forEach(function(p) {
             var card = document.createElement("div");
             card.className = "player-card";
             card.id = "sidebar-player-" + p.id;
             card.innerHTML = '<div class="player-name">👤 ' + p.name + '</div><div class="player-budget">€' + p.budget + 'M</div>';
             sidebar.appendChild(card);
-
             var teamBox = document.createElement("div");
             teamBox.className = "team-box";
             teamBox.innerHTML = '<h4>⚽ Equipo de J' + p.id + '</h4><ul id="team-list-' + p.id + '"></ul>';
@@ -170,103 +151,86 @@
     }
 
     function setupRound() {
-        if (currentRound >= poolJugadores.length) {
-            endGame();
-            return;
-        }
-
+        if (currentRound >= poolJugadores.length) { endGame(); return; }
         isRevealed = false;
         highestBidder = null;
-        
         basePrice = (Math.floor(Math.random() * 24) + 1) * 5; 
         currentBid = basePrice;
-
         document.getElementById("round-title").innerText = "Jugador Oculto " + (currentRound + 1) + " de " + poolJugadores.length;
         document.getElementById("player-stats").innerText = poolJugadores[currentRound].stats;
         document.getElementById("base-price").innerText = "€" + basePrice + "M";
-     document.getElementById("current-bid").innerText = "€" + currentBid + "M";
-document.getElementById("player-icon").innerText = "👤";
-document.getElementById("player-icon").className = "silueta hidden";
-document.getElementById("reveal-btn").disabled = true;
-document.getElementById("next-btn").disabled = true;
-buildBidButtons();
-updateSidebarHighlights();
-}
-
-function buildBidButtons() {
-    var container = document.getElementById("bid-buttons-container");
-    container.innerHTML = "";
-    playersData.forEach(function(p) {
-        var btn = document.createElement("button");
-        btn.className = "btn-bid";
-        btn.id = "bid-btn-" + p.id;
-        btn.innerText = "J" + p.id + " (+5M)";
-        if (p.budget < currentBid + 5) {
-            btn.disabled = true;
-        }
-        btn.onclick = function() { makeBid(p.id); };
-        container.appendChild(btn);
-    });
-}
-
-function makeBid(playerId) {
-    if (isRevealed) return;
-    if (highestBidder === null) {
-        currentBid = basePrice;
-    } else {
-        currentBid += 5;
+        document.getElementById("current-bid").innerText = "€" + currentBid + "M";
+        document.getElementById("player-icon").innerText = "👤";
+        document.getElementById("player-icon").className = "silueta hidden";
+        document.getElementById("reveal-btn").disabled = true;
+        document.getElementById("next-btn").disabled = true;
+        buildBidButtons();
+        updateSidebarHighlights();
     }
-    highestBidder = playerId;
-    document.getElementById("current-bid").innerText = "€" + currentBid + "M";
-    updateSidebarHighlights();
-    buildBidButtons();
-    document.getElementById("reveal-btn").disabled = false;
-}
 
-function updateSidebarHighlights() {
-    playersData.forEach(function(p) {
-        var card = document.getElementById("sidebar-player-" + p.id);
-        if (card) {
-            if (p.id === highestBidder) {
-                card.className = "player-card active-bidder";
-            } else {
-                card.className = "player-card";
-            }
-        }
-    });
-}
-
-function revealPlayer() {
-    if (highestBidder === null) return;
-    isRevealed = true;
-    var winner = playersData.find(function(p) { return p.id === highestBidder; });
-    var playerObj = poolJugadores[currentRound];
-    winner.budget -= currentBid;
-    winner.team.push({ name: playerObj.name, icon: playerObj.icon, cost: currentBid });
-    document.getElementById("player-icon").innerText = playerObj.icon;
-    document.getElementById("player-icon").className = "silueta";
-    document.getElementById("player-stats").innerHTML = "¡FICHADO por Jugador " + winner.id + "!Era: " + playerObj.name + " por €" + currentBid + "M.";
-    buildSidebarAndTeams();
-    playersData.forEach(function(p) {
-        var list = document.getElementById("team-list-" + p.id);
-        list.innerHTML = "";
-        p.team.forEach(function(item) {
-            var li = document.createElement("li");
-            li.innerText = item.icon + " " + item.name + " (-€" + item.cost + "M)";
-            list.appendChild(li);
+    function buildBidButtons() {
+        var container = document.getElementById("bid-buttons-container");
+        container.innerHTML = "";
+        playersData.forEach(function(p) {
+            var btn = document.createElement("button");
+            btn.className = "btn-bid";
+            btn.id = "bid-btn-" + p.id;
+            btn.innerText = "J" + p.id + " (+5M)";
+            if (p.budget < currentBid + 5) { btn.disabled = true; }
+            btn.onclick = function() { makeBid(p.id); };
+            container.appendChild(btn);
         });
-    });
-    var bidBtns = document.querySelectorAll(".btn-bid");
-    bidBtns.forEach(function(b) { b.disabled = true; });
-    document.getElementById("reveal-btn").disabled = true;
-    document.getElementById("next-btn").disabled = false;
-}
+    }
 
-function nextRound() {
-    currentRound++;
-    setupRound();
-}
+    function makeBid(playerId) {
+        if (isRevealed) return;
+        if (highestBidder === null) { currentBid = basePrice; } else { currentBid += 5; }
+        highestBidder = playerId;
+        document.getElementById("current-bid").innerText = "€" + currentBid + "M";
+        updateSidebarHighlights();
+        buildBidButtons();
+        document.getElementById("reveal-btn").disabled = false;
+    }
 
-function endGame() {
-    document.getElementById("game-layout").innerHTML = '🏆 ¡Subasta de 412 Finalizada! 🏆Todos los jugadores han sido subastados. Miren sus plantillas de abajo y decidan en la mesa quién armó el mejor equipo con el presupuesto que usó.Iniciar Nueva Partida';
-}
+    function updateSidebarHighlights() {
+        playersData.forEach(function(p) {
+            var card = document.getElementById("sidebar-player-" + p.id);
+            if (card) {
+                if (p.id === highestBidder) { card.className = "player-card active-bidder"; } else { card.className = "player-card"; }
+            }
+        });
+    }
+
+    function revealPlayer() {
+        if (highestBidder === null) return;
+        isRevealed = true;
+        var winner = playersData.find(function(p) { return p.id === highestBidder; });
+        var playerObj = poolJugadores[currentRound];
+        winner.budget -= currentBid;
+        winner.team.push({ name: playerObj.name, icon: playerObj.icon, cost: currentBid });
+        document.getElementById("player-icon").innerText = playerObj.icon;
+        document.getElementById("player-icon").className = "silueta";
+        document.getElementById("player-stats").innerHTML = "<strong>¡FICHADO por Jugador " + winner.id + "!</strong><br>Era: " + playerObj.name + " por €" + currentBid + "M.";
+        buildSidebarAndTeams();
+        playersData.forEach(function(p) {
+            var list = document.getElementById("team-list-" + p.id);
+            list.innerHTML = "";
+            p.team.forEach(function(item) {
+                var li = document.createElement("li");
+                li.innerText = item.icon + " " + item.name + " (-€" + item.cost + "M)";
+                list.appendChild(li);
+            });
+        });
+        var bidBtns = document.querySelectorAll(".btn-bid");
+        bidBtns.forEach(function(b) { b.disabled = true; });
+        document.getElementById("reveal-btn").disabled = true;
+        document.getElementById("next-btn").disabled = false;
+    }
+
+    function nextRound() { currentRound++; setupRound(); }
+    function endGame() {
+        document.getElementById("game-layout").innerHTML = '<div style="grid-column: 1 / -1; background: #1a2342; padding: 40px 20px; border-radius: 12px; border: 2px solid #00ff66;"><h2>🏆 ¡Subasta de 412 Finalizada! 🏆</h2><p style="font-size: 16px; color:#cbd5e1;">Todos los jugadores han sido subastados. Miren sus plantillas de abajo y decidan en la mesa quién armó el mejor equipo con el presupuesto que usó.</p><br><button class="btn" onclick="location.reload()">Iniciar Nueva Partida</button></div>';
+    }
+</script>
+</body>
+</html>
